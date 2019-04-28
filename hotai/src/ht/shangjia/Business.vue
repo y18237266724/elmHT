@@ -95,6 +95,11 @@
         .then(res=>{
             this.tableData=res.data
         })
+        this.Axios
+.get('https://elm.cangdu.org/shopping/restaurants/count')
+.then(res=>{
+this.count=res.data.count
+})
     },
     methods:{
          handleSizeChange(val) {
