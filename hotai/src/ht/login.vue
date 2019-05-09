@@ -2,11 +2,18 @@
   <div>
     <el-container style="height: 500px; border: 1px solid #eee">
       <el-aside width="200px" style="background-color: rgb(238, 241, 246)">
-        <el-menu :default-openeds="['1', '7']">
+        <el-menu
+         :router='true'
+           :default-active="this.$route.path"
+      @open="handleOpen"
+      @close="handleClose"
+          >
           <el-submenu index="1" class="one">
-            <template slot="title" >
+            <template slot="title">
               <i class="el-icon-menu"></i>
-              <router-link tag="span" :to="{path:'/LOGIN/Manage'}" class="router-o"><span @click="one" class="O1">首页</span></router-link>
+              <router-link tag="span" :to="{path:'/LOGIN/Manage'}" class="router-o">
+                <span class="O1">首页</span>
+              </router-link>
             </template>
           </el-submenu>
 
@@ -15,11 +22,11 @@
               <i class="el-icon-document"></i>数据管理
             </template>
             <el-menu-item-group>
-              <el-menu-item index="2-1"  @click="but">用户列表</el-menu-item>
-              <el-menu-item index="2-2"  @click="but1">商家列表</el-menu-item>
-              <el-menu-item index="2-3">食品列表</el-menu-item>
-              <el-menu-item index="2-4">订单列表</el-menu-item>
-              <el-menu-item index="2-5">管理员列表</el-menu-item>
+              <el-menu-item index="2-1" :index="'/LOGIN/userlist'">用户列表</el-menu-item>
+              <el-menu-item index="2-2" :index="'/LOGIN/Business'">商家列表</el-menu-item>
+              <el-menu-item index="2-3" :index="'/LOGIN/Foods'">食品列表</el-menu-item>
+              <el-menu-item index="2-4" :index="'/LOGIN/Order'">订单列表</el-menu-item>
+              <el-menu-item index="2-5" :index="'/LOGIN/Adminlist'">管理员列表</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
 
@@ -28,8 +35,8 @@
               <i class="el-icon-plus"></i>添加数据
             </template>
             <el-menu-item-group>
-              <el-menu-item index="3-1">添加数据</el-menu-item>
-              <el-menu-item index="3-2">添加商品</el-menu-item>
+              <el-menu-item index="3-1" :index="'/LOGIN/Shangpu'">添加商铺</el-menu-item>
+              <el-menu-item index="3-2" :index="'/LOGIN/Goods'">添加商品</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
 
@@ -38,7 +45,7 @@
               <i class="el-icon-star-on"></i>图标
             </template>
             <el-menu-item-group>
-              <el-menu-item index="4-1">用户分布</el-menu-item>
+              <el-menu-item index="4-1" :index="'/LOGIN/Distr'">用户分布</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
 
@@ -47,7 +54,7 @@
               <i class="el-icon-edit"></i>编辑
             </template>
             <el-menu-item-group>
-              <el-menu-item index="5-1">文本编辑</el-menu-item>
+              <el-menu-item index="5-1" :index="'/LOGIN/Text'">文本编辑</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
 
@@ -56,7 +63,7 @@
               <i class="el-icon-setting"></i>设置
             </template>
             <el-menu-item-group>
-              <el-menu-item index="6-1">管理员设置</el-menu-item>
+              <el-menu-item index="6-1" :index="'/LOGIN/Adminset'">管理员设置</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
 
@@ -65,7 +72,7 @@
               <i class="el-icon-warning"></i>说明
             </template>
             <el-menu-item-group>
-              <el-menu-item index="7-1">说明</el-menu-item>
+              <el-menu-item index="7-1" :index="'/LOGIN/Note'">说明</el-menu-item>
             </el-menu-item-group>
           </el-submenu>
         </el-menu>
@@ -73,8 +80,18 @@
 
       <el-container class="h">
         <el-header style="text-align: right; font-size: 12px" class="header">
-          <span><span>首页</span><span class="s">{{this.list}}</span><span>{{this.lis}}</span></span>
-          <img src="../images/ccc.png" alt>
+          <el-breadcrumb separator="/">
+            <el-breadcrumb-item :to="{ path: '/LOGIN/Manage' }">首页</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="name">{{name}}</el-breadcrumb-item>
+            <el-breadcrumb-item v-if="title">{{title}}</el-breadcrumb-item>
+          </el-breadcrumb>
+
+          <img :src="'https://elm.cangdu.org/img/'+this.$store.state.nam" alt @click="Img" class="ooo" v-if="this.$store.state.nam">
+          <img :src="'https://elm.cangdu.org/img/'+this.img" alt @click="Img" class="ooo" v-else>
+          <ul class="UL" v-if="oneshow">
+            <li @click="one">首页</li>
+            <li @click="exit">退出</li>
+          </ul>
         </el-header>
 
         <router-view class="manage"></router-view>
@@ -84,34 +101,67 @@
 </template>
 
 <script>
-
 import manage from "./manage/manage.vue";
 export default {
-    data(){
+  data() {
     return {
-        list:'',//头部首页信息
-        lis:'',
-    }
-},
+      b:[],
+      img:'',
+      list: "", //头部首页信息
+      lis: "",
+      oneshow: false
+    };
+  },
+  mounted(){   
+  //   this.img=this.$store.state.nam
+  //  console.log(this.img)
+        this.Axios
+        .get('https://elm.cangdu.org/admin/info')
+        .then((res)=>{
+          this.img=res.data.data.avatar
+        })
+       
+    },
   components: {
     manage
   },
-  methods:{
-      one(){
-          this.list=''
-          this.lis=''
+  computed: {
+    
+    name() {
+      return this.$route.meta.name;
+    },
+    title() {
+      return this.$route.meta.title;
+    }
+  },
+  methods: {
+    handleOpen(key, keyPath) {
+        // console.log(key, keyPath);
       },
-      but(){
-          this.list="/ 数据管理"
-          this.lis="/ 用户列表"
-         this.$router.push({ path: "/LOGIN/userlist" });
-        
+      handleClose(key, keyPath) {
+        // console.log(key, keyPath);
       },
-      but1(){
-            this.list="/ 数据管理"
-            this.lis="/ 商家列表"
-            this.$router.push({ path: "/LOGIN/Business" });
+     one(){
+      this.$router.push({path:'/LOGIN/Manage'})
+    },
+    Img() {
+      if (this.oneshow == false) {
+        this.oneshow = true;
+      } else {
+        this.oneshow = false;
       }
+    },
+    setCookie(name, value, day) {
+      var exp = new Date();
+      exp.setDate(exp.getDate() + day);
+      document.cookie =
+        name + "=" + unescape(value) + ";expires=" + exp.toGMTString();
+    },
+    exit() {
+      this.setCookie("SID", "", 0);
+       localStorage.removeItem("vuex")
+      this.$router.push({ path: "/" });
+    },
   }
 };
 </script>
@@ -121,18 +171,48 @@ export default {
   padding: 0;
   font-size: 15px;
 }
-.el-container.is-vertical{
-    overflow: auto;
+.ooo{
+  margin-top: -55px
+}
+.UL {
+  width: 100px;
+  height: 100px;
+  list-style: none;
+  background: white;
+  position: absolute;
+  top: 50px;
+  right: 20px;
+  z-index: 30;
+  box-shadow: 8px 8px 10px gray;
+  cursor: pointer;
+  li:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+  li {
+    width: 100%;
+    height: 50%;
+    text-align: center;
+    font-size: 17px;
+    line-height: 50px;
+  }
+}
+.el-container.is-vertical {
+  overflow: auto;
 }
 
-.O1{
-background-color: rgb(50, 64, 87);
+.O1 {
+  background-color: rgb(50, 64, 87);
 }
-.s{
-    color: gray !important;
+.s {
+  color: gray !important;
 }
 .h {
   background: white !important;
+
+  img,
+  .SS {
+    cursor: pointer;
+  }
 }
 .header {
   background-color: #eff2f7 !important;

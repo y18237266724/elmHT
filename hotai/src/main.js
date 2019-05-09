@@ -14,7 +14,15 @@ import Mint from 'mint-ui'
 import 'mint-ui/lib/style.css'
 Vue.use(Mint)
 
+import VueQuillEditor from 'vue-quill-editor'
+import 'quill/dist/quill.core.css'
+import 'quill/dist/quill.snow.css'
+import 'quill/dist/quill.bubble.css'
+Vue.use(VueQuillEditor)
+
+
 import Axios from "axios";
+Axios.defaults.withCredentials=true;
 Vue.prototype.Axios=Axios
 
 import echarts from 'echarts'

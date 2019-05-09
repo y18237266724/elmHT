@@ -18,12 +18,14 @@ export default new vuex.Store({
     //保存本地插件
     plugins:[vuexLocal.plugin],
     state:{//储存变量 声明数据
-        nam:arr,
+        nam:'',
     //    n:0
     },
     //mutations 声明改变数据的方法
     mutations:{//必须同步操作
-        
+        handleAvatarSuccess(r,q){
+            this.state.nam=q.image_path
+        }
     },
     getters:{//相当于state里面的数据的计算属性
         reversName(state){

@@ -1,6 +1,7 @@
 <template>
   <div>
-    <p class="P">elm后台管理系统</p>
+     
+ <p class="P">elm后台管理系统</p>
     <div class="DIV">
       <input type="text" class="input_name one" placeholder="用户名" v-model="name" @blur="fun()">
       <p>{{this.nameerr}}</p>
@@ -14,6 +15,7 @@
         <br>注册过的用户可凭账号密码登录
       </p>
     </div>
+       
   </div>
 </template>
 
@@ -24,10 +26,17 @@ export default {
       nameerr: "", //错误提示信息
       passerr: "", //错误提示信息
       name: "",
-      pass: ""
+      pass: "",
+      show:false
     };
   },
   methods: {
+     setCookie(name, value, day) {
+        var exp = new Date();
+        exp.setDate(exp.getDate() + day);
+        document.cookie = name + "=" + unescape(value) + ";expires=" + exp.toGMTString();
+    },
+  
     fun() {
       //input失去焦点时逻辑处理
       if (this.name == "") {
@@ -51,8 +60,10 @@ export default {
     loin() {
       //登录点击事件
       this.fun();
-      let data = { user_name: this.name, password: this.pass };
-      this.Axios.post("https://elm.cangdu.org/admin/login", data).then(res => {
+      if(this.show==false){
+         this.show=true
+          let data = { user_name: this.name, password: this.pass };
+         this.Axios.post("https://elm.cangdu.org/admin/login", data).then(res => {
         if (
           res.data.success == "登录成功" ||
           res.data.success == "注册管理员成功"
@@ -61,14 +72,22 @@ export default {
             message: "恭喜你，登录成功",
             type: "success"
           });
+          console.log(res.data)
+          this.setCookie("SID", JSON.stringify(res.data), 7)
           this.$router.push({ path: "/LOGIN" });
         } else {
           this.tan();
+          this.show=false
         }
       });
-    }
+      }
+     
+    },
+     
   },
-  created() {}
+
+   
+  
 };
 </script>
 <style lang="scss" scoped>
